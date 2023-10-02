@@ -2,12 +2,23 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\Telegram;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
+    
+    protected $telegram;
+
+    public function __construct(Container $container, Telegram $telegram)
+    {
+        parent::__construct($container);
+        $this->telegram = $telegram;
+    }
+    
     /**
      * The list of the inputs that are never flashed to the session on validation exceptions.
      *
@@ -31,11 +42,12 @@ class Handler extends ExceptionHandler
 
     public function report(Throwable $e)
     {
-        $message = $e->getMessage();
-        Http::post('https://api.telegram.org/bot6528159145:AAEHTxrNluZZz8oWy4tlunBi8AhdYCl2Veo/sendMessage', [
-            'chat_id' => 182396639,
-            'text' => $message,
-            'parse_mode' => 'Markdown',
-        ]);
+        $data = [
+            'description' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ];
+
+        $this->telegram->sendMessage(env('REPORT_TELEGRAM_ID'), $data);
     }
 }

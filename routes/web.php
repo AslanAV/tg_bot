@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Http;
+use App\Helpers\Telegram;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,10 +14,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    Http::post('https://api.telegram.org/bot6528159145:AAEHTxrNluZZz8oWy4tlunBi8AhdYCl2Veo/sendMessage', [
-        'chat_id' => 182396639,
-        'text' => '*Hello!',
-        'parse_mode' => 'Markdown',
-    ]);
+Route::get('/', function (Telegram $telegram) {
+    $buttons = [
+        'inline_keyboard' => [
+            [
+                [
+                    'text' => 'button1',
+                    'callback_data' => '1'
+                ],
+                [
+                    'text' => 'button2',
+                    'callback_data' => '2'
+                ]
+            ],
+            [
+                [
+                    'text' => 'button3',
+                    'callback_data' => '3'
+                ],
+                [
+                    'text' => 'button4',
+                    'callback_data' => '4'
+                ]
+            ]
+
+        ]
+    ];
+    $sendMessage = $telegram->editButtons(env('REPORT_TELEGRAM_ID'), 'test2', json_encode($buttons), 62);
+    $sendMessage = json_decode($sendMessage);
+    // $http = $telegram->sendDocument(env('REPORT_TELEGRAM_ID'), '1.png', $sendMessage->result->message_id);
+    dd($sendMessage);
 });
